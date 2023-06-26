@@ -1,37 +1,75 @@
 package com.db.demo;
 
+import java.util.HashMap;
+
 import org.springframework.stereotype.Component;
 
 import com.db.demo.algoteam.Algo;
 import com.db.demo.algoteam.SignalHandler;
+import com.db.demo.model.Action;
+import com.db.demo.model.Signal;
 
 @Component
-class Application implements SignalHandler {
+public class Application implements SignalHandler {
+	private final Algo algo;
+	private static HashMap<Integer, Signal> signalInfoMap = new HashMap<>();;
 
-	public void handleSignal(int signal) {
-		Algo algo = new Algo();
-		switch (signal) {
-		case 1:
+	public Application() {
+		this.algo = new Algo();
+//		this.signalInfoMap = new HashMap<>();
+	}
+
+	@Override
+	public void handleSignal(int signalId) {
+		Signal signal = signalInfoMap.get(signalId);
+
+		// Set Algo Params and Perform actions
+		if (signal != null) {
+			if (signal.getParams() != null) {
+				for (HashMap.Entry<String, Integer> entry : signal.getParams().entrySet()) {
+					algo.setAlgoParam(Integer.parseInt(entry.getKey()), entry.getValue());
+				}
+			}
+
+			if (signal.getActions() != null) {
+				for (Action action : signal.getActions()) {
+					performAction(action.getAction());
+				}
+			}
+		}
+		algo.doAlgo();
+		
+		System.out.println("----------> signal-"+signalId+" process completed");
+		System.out.println("----------> Total "+signalInfoMap.size()+" signal process completed");
+	}
+
+	private void performAction(String action) {
+
+		// Add more cases for additional actions if needed
+		switch (action) {
+		case "setUp":
 			algo.setUp();
-			algo.setAlgoParam(1, 60);
+			break;
+		case "performCalc":
 			algo.performCalc();
+			break;
+		case "submitToMarket":
 			algo.submitToMarket();
 			break;
-		case 2:
+		case "reverse":
 			algo.reverse();
-			algo.setAlgoParam(1, 80);
-			algo.submitToMarket();
-			break;
-		case 3:
-			algo.setAlgoParam(1, 90);
-			algo.setAlgoParam(2, 15);
-			algo.performCalc();
-			algo.submitToMarket();
 			break;
 		default:
 			algo.cancelTrades();
 			break;
 		}
-		algo.doAlgo();
+	}
+
+	public HashMap<Integer, Signal> getSignalInfoMap() {
+		return signalInfoMap;
+	}
+	
+	public void addSignalInfo(Signal signal) {
+		signalInfoMap.put(signal.getSignalId(), signal);
 	}
 }
