@@ -1,6 +1,7 @@
 package com.db.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -11,14 +12,10 @@ import com.db.demo.algoteam.SignalHandler;
 import com.db.demo.model.Signal;
 
 @RestController
-class SignalController {
+public class SignalController {
 
 	@Autowired
-	private final SignalHandler signalHandler;
-
-	public SignalController(SignalHandler signalHandler) {
-		this.signalHandler = signalHandler;
-	}
+  private SignalHandler signalHandler;
 
 	/**
 	 * POST endpoint to receive a trading signal and process it.
@@ -28,10 +25,15 @@ class SignalController {
 	 */
 	@PostMapping("/signal")
 	public ResponseEntity<String> receiveSignal(@RequestBody Signal signal) {
-		Application application = new Application();
-		application.addSignalInfo(signal);
-		signalHandler.handleSignal(signal.getSignalId());
-		String responseMessage = "Signal processed successfully";
-		return ResponseEntity.ok(responseMessage);
+		try {
+			Application application = new Application();
+			application.addSignalInfo(signal);
+			signalHandler.handleSignal(signal.getSignalId());
+			String responseMessage = "Signal processed successfully";
+			return ResponseEntity.ok(responseMessage);
+		} catch (Exception e) {
+			String errorMessage = "Error processing the signal: " + e.getMessage();
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorMessage);
+		}
 	}
 }

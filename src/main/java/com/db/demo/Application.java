@@ -16,7 +16,6 @@ public class Application implements SignalHandler {
 
 	public Application() {
 		this.algo = new Algo();
-//		this.signalInfoMap = new HashMap<>();
 	}
 
 	@Override
@@ -39,8 +38,7 @@ public class Application implements SignalHandler {
 		}
 		algo.doAlgo();
 		
-		System.out.println("----------> signal-"+signalId+" process completed");
-		System.out.println("----------> Total "+signalInfoMap.size()+" signal process completed");
+		System.out.println("----------> signal process completed");
 	}
 
 	private void performAction(String action) {
@@ -65,10 +63,6 @@ public class Application implements SignalHandler {
 		}
 	}
 
-	public HashMap<Integer, Signal> getSignalInfoMap() {
-		return signalInfoMap;
-	}
-	
 	public void addSignalInfo(Signal signal) {
 		signalInfoMap.put(signal.getSignalId(), signal);
 	}
